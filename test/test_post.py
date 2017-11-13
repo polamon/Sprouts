@@ -21,22 +21,3 @@ class TestGetAgeFromTime(unittest.TestCase):
     @freeze_time('2017-11-11')
     def test_general_date(self):
         self.assertEqual(27, get_age_from_time('2017-10-15'))
-
-class TestParseForumPage(unittest.TestCase):
-    def runTest(self):
-        with open('test/forum.html') as f:
-            content = f.read()
-            posts = parse_forum_page(content)
-            post = posts[0]
-            self.assertEqual('脸书Intern新鲜面经', post.title)
-            self.assertEqual(1, post.age)
-            self.assertEqual(303539, post.tid)
-
-class TestPopulateFromThreadPage(unittest.TestCase):
-    def runTest(self):
-        with open('test/thread.html') as f:
-            content = f.read()
-            post = Post()
-            populate_from_thread_page(post, content)
-            self.assertEqual('Google', post.company)
-            self.assertEqual('实习', post.work_type)
