@@ -3,7 +3,10 @@
 from datetime import datetime
 from lxml import etree
 
-company_list = ['Google', 'Facebook', 'Linkedin', 'Amazon', 'Microsoft']
+company_list = ['Airbnb', 'Amazon', 'Apple', 'Bloomberg', 'Cisco', 'Dropbox',
+                'eBay', 'EMC', 'Facebook', 'Google', 'Intel', 'Linkedin',
+                'Microsoft', 'Nvidia', 'Oracle', 'Snapchat', 'Twitter',
+                'TwoSigma', 'Uber', 'VMware', 'Yahoo', 'Yelp']
 work_type_list = ['全职', '实习']
 experience_list = ['fresh grad应届毕业生', '在职跳槽']
 
