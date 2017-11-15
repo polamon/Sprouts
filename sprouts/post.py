@@ -94,6 +94,7 @@ def populate_from_thread_page(post, thread_content):
     """
     selector = etree.HTML(thread_content)
     tag_elmts = selector.xpath('//*/tr[1]/td[2]/div[2]/div/span/node()')
+
     tags = []
     for tag_elmt in tag_elmts:
         if isinstance(tag_elmt, etree._ElementUnicodeResult):
@@ -107,10 +108,9 @@ def populate_from_thread_page(post, thread_content):
                 if v == 'company':
                     post.company = k
                 if v == 'work_type':
-                    post.work_type = k
+                    post.work_type = 'fulltime' if k == '全职' else 'intern'
                 if v == 'experience':
                     post.experience = k
-    return post
 
 if __name__ == '__main__':
     with open("test/thread.html") as f:
