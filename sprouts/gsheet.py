@@ -33,8 +33,7 @@ def get_credentials():
         credentials = tools.run_flow(flow, store, flags)
     return credentials
 
-
-def write_to_gsheet(posts, sheet_id):
+def write_to_gsheet(gsheet_id, schema, values):
     """
     Write posts to Google Sheets.
     """
@@ -46,16 +45,19 @@ def write_to_gsheet(posts, sheet_id):
                               discoveryServiceUrl = discoveryUrl,
                               cache_discovery = False)
 
-    spreadsheetId = sheet_id
-    rangeName = 'B2:F'
-    values = []
-    for post in posts:
-        values.append([post.tid, post.title, post.company,
-                       post.work_type, post.url])
+    # 1. write first row(schema)
+    rangeName = 'A1:' + chr(ord('A') + len(schema) - 1)
+    body = {'values': [schema]}
+    service.spreadsheets().values().update(
+        spreadsheetId = gsheet_id,
+        range = rangeName,
+        valueInputOption = 'USER_ENTERED',
+        body = body).execute()
 
+    rangeName = 'A2:' + chr(ord('A') + len(schema) - 1)
     body = {'values': values}
-    result = service.spreadsheets().values().update(
-        spreadsheetId = spreadsheetId,
+    service.spreadsheets().values().update(
+        spreadsheetId = gsheet_id,
         range = rangeName,
         valueInputOption = 'USER_ENTERED',
         body = body).execute()

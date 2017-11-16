@@ -3,16 +3,19 @@
 from absl import app, flags
 import requests
 
-from post import *
+from post import Post
+import bbs_parser
 import gsheet
 
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('page_num', 0, 'Number of forum pages to retrieve.')
 flags.DEFINE_integer('max_age', 0, 'Max age of the posts to keep.')
-flags.DEFINE_string('sheet_id', None, 'Target Google sheet id.')
+flags.DEFINE_string('gsheet_id', None, 'Target Google sheet id.')
 flags.DEFINE_bool('display_only', False,
                   'Display all command line arguments only.')
-flags.DEFINE_integer('logging_level', 0, '')
+
+def filter_fn(post):
+    pass
 
 def main(argv):
     if FLAGS.display_only:
@@ -28,7 +31,7 @@ def main(argv):
         url = "http://www.1point3acres.com/bbs/forum-145-%s.html" %(i + 1)
         r = requests.get(url, headers = headers)
         forum_content = r.text
-        posts.extend(parse_forum_page(forum_content))
+        posts.extend(bbs_parser.parse_forum_page(forum_content))
 
     # 3. Filter posts by parameters given; sort posts by time.
     posts = list(filter(lambda post: post.age <= FLAGS.max_age, posts))
@@ -38,11 +41,13 @@ def main(argv):
     for post in posts:
         r = requests.get(post.url, headers = headers)
         thread_content = r.text
-        populate_from_thread_page(post, thread_content)
+        bbs_parser.populate_from_thread_page(post, thread_content)
 
     # 4. Ouput posts to Google Sheet or terminal.
-    if FLAGS.sheet_id:
-        gsheet.write_to_gsheet(posts, FLAGS.sheet_id)
+    if FLAGS.gsheet_id:
+        schema = Post.schema()
+        values = [post.tolist() for post in posts]
+        gsheet.write_to_gsheet(FLAGS.gsheet_id, schema, values)
     else:
         for post in posts:
             print(post, '\n')
