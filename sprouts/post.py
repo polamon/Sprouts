@@ -20,7 +20,7 @@ class Post:
 
     @staticmethod
     def schema():
-        return ['tid', 'Title', 'Age(day)', 'Company', 'Work Type',
+        return ['tid', 'Title', 'Age', 'Company', 'Work Type',
                 'Experience', 'Url']
 
     def tolist(self):

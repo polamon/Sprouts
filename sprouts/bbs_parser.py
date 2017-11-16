@@ -105,6 +105,6 @@ def populate_from_thread_page(post, thread_content):
                         post.work_type = 'Intern'
                 if v == 'experience':
                     if k == 'fresh grad应届毕业生':
-                        post.experience = 'Fresh Grad'
+                        post.experience = 'New Grad'
                     else:
                         post.experience = 'Experienced'
