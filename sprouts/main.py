@@ -6,6 +6,7 @@ import requests
 import time
 
 from post import *
+import gsheet
 
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('page_num', 0, 'Number of forum pages to retrieve.')
@@ -13,6 +14,7 @@ flags.DEFINE_integer('max_age', 0, 'Max age of the posts to keep.')
 flags.DEFINE_string('company', None, 'Name of specified company.')
 flags.DEFINE_string('work_type', None, 'Work type (fulltime / intern).')
 flags.DEFINE_string('sheet_id', None, 'Target Google sheet id.')
+flags.DEFINE_bool('output', False, 'Whether to output to terminal.')
 
 def filter_fn(post):
     if FLAGS.company:
@@ -45,8 +47,13 @@ def main(argv):
         populate_from_thread_page(post, thread_content)
 
     posts = list(filter(lambda post: filter_fn(post), posts))
-    for post in posts:
-        print(post)
+
+    if FLAGS.output:
+        for post in posts:
+            print(post, '\n')
+
+    if FLAGS.sheet_id:
+        gsheet.write(posts, FLAGS.sheet_id)
 
 if __name__ == '__main__':
   app.run(main)

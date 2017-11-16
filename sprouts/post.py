@@ -6,7 +6,7 @@ from lxml import etree
 company_list = ['Airbnb', 'Amazon', 'Apple', 'Bloomberg', 'Cisco', 'Dropbox',
                 'eBay', 'EMC', 'Facebook', 'Google', 'Intel', 'Linkedin',
                 'Microsoft', 'Nvidia', 'Oracle', 'Snapchat', 'Twitter',
-                'TwoSigma', 'Uber', 'VMware', 'Yahoo', 'Yelp']
+                'TwoSigma', 'Uber', 'VMWare', 'Yahoo', 'Yelp']
 work_type_list = ['全职', '实习']
 experience_list = ['fresh grad应届毕业生', '在职跳槽']
 
@@ -18,10 +18,12 @@ for work_type in work_type_list:
 for experience in experience_list:
     tag_to_type[experience] = "experience"
 
+
 class Post:
     """
     Holder class for post basic info and tags.
     """
+
     def __init__(self):
         self.tid = None
         self.title = None
@@ -32,9 +34,11 @@ class Post:
         self.experience = None
 
     def __str__(self):
-        for item in self.__dict__.items():
-            print(item)
-        return ""
+        return "\n".join(["%s : %s" % (str(k), str(v)) for (k, v) in self.__dict__.items()])
+
+    def tolist(self):
+        return []
+
 
 def get_age_from_time(time):
     """
@@ -42,7 +46,7 @@ def get_age_from_time(time):
     """
     try:
         age = 0
-        if time.endswith('小时前') or time.endswith('分钟前'):
+        if time.endswith(('秒前', '小时前', '分钟前')):
             age = 0
         elif time.startswith('昨天'):
             age = 1
@@ -53,12 +57,13 @@ def get_age_from_time(time):
         else:
             l = [int(x) for x in time.split('-')]
             if len(l) != 3:
-                raise ValueError('invalid time expression: %s' %(time))
+                raise ValueError('invalid time expression: %s' % (time))
             post_day = datetime(*l)
             age = (datetime.today() - post_day).days
         return age
     except:
         raise
+
 
 def parse_forum_page(forum_content):
     """
@@ -87,6 +92,7 @@ def parse_forum_page(forum_content):
         posts.append(post)
     return posts
 
+
 def populate_from_thread_page(post, thread_content):
     """
     Parse thread page to populate fields in Post object.
@@ -108,13 +114,6 @@ def populate_from_thread_page(post, thread_content):
                 if v == 'company':
                     post.company = k
                 if v == 'work_type':
-                    post.work_type = 'fulltime' if k == '全职' else 'intern'
+                    post.work_type = 'Fulltime' if k == '全职' else 'Intern'
                 if v == 'experience':
                     post.experience = k
-
-if __name__ == '__main__':
-    with open("test/thread.html") as f:
-        content = f.read()
-        post = Post()
-        populate_from_thread_page(post, content)
-        print(post)
