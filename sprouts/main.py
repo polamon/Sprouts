@@ -4,6 +4,7 @@ from absl import app, flags
 import csv
 from pyshorteners import Shortener
 import requests
+import time
 from tqdm import *
 
 from post import Post
@@ -104,6 +105,9 @@ def main(argv):
         bbs_parser.populate_from_thread_page(post, thread_content)
         if FLAGS.print_all_posts:
             print(post, '\n')
+
+        # (Don't) Be Evil
+        time.sleep(0.5)
 
     # Further filter posts.
     posts = list(filter(filter_fn, posts))
