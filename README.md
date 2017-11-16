@@ -1,6 +1,5 @@
 # Sprouts
 
-Gather new posts from 1point3acres bbs and store summaries in Google Sheet or local csv file.  
 从一亩三分地论坛获取新帖，将摘要存入Google Sheets或本地csv文件。
 
 ## Installation
