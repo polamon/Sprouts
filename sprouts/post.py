@@ -23,7 +23,6 @@ class Post:
     """
     Holder class for post basic info and tags.
     """
-
     def __init__(self):
         self.tid = None
         self.title = None
@@ -36,8 +35,8 @@ class Post:
     def __str__(self):
         return "\n".join(["%s : %s" % (str(k), str(v)) for (k, v) in self.__dict__.items()])
 
-    def tolist(self):
-        return []
+    def tolist(self, schema):
+        return [self.tid, self.title]
 
 
 def get_age_from_time(time):
@@ -57,11 +56,12 @@ def get_age_from_time(time):
         else:
             l = [int(x) for x in time.split('-')]
             if len(l) != 3:
-                raise ValueError('invalid time expression: %s' % (time))
+                raise ValueError('invalid time expression: %s' %(time))
             post_day = datetime(*l)
             age = (datetime.today() - post_day).days
         return age
     except:
+        print('invalid time expression: %s' %(time))
         raise
 
 
@@ -79,6 +79,8 @@ def parse_forum_page(forum_content):
         post = Post()
         post.title = thread_elmt.text
         post.url = thread_elmt.get('href')
+        if not post.url.startswith('http'):
+            continue
 
         for x in post.url.split('&'):
             if x.startswith('tid='):
