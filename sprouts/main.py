@@ -98,7 +98,7 @@ def main(argv):
     posts = sorted(posts, key = lambda post: post.tid)
 
     # Populate tags from corresponding thread page to post.
-    for post in tqdm(posts):
+    for post in tqdm(posts, desc = 'Retrieving posts...'):
         r = requests.get(post.url, headers = headers)
         thread_content = r.text
         bbs_parser.populate_from_thread_page(post, thread_content)
@@ -119,12 +119,14 @@ def main(argv):
 
     if FLAGS.gsheet_id:
         gsheet.write_to_gsheet(FLAGS.gsheet_id, schema, values)
+        print('Successfully written to Google Sheet %s' %(FLAGS.gsheet_id))
 
     if FLAGS.csv_file:
         with open(FLAGS.csv_file, 'w') as f:
             f_csv = csv.writer(f)
             f_csv.writerow(schema)
             f_csv.writerows(values)
+            print('Successfully written to file %s' %(FLAGS.csv_file))
 
 if __name__ == '__main__':
   app.run(main)
