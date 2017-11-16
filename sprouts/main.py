@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from absl import app, flags
+from pyshorteners import Shortener
 import requests
 
 from post import Post
@@ -8,18 +9,33 @@ import bbs_parser
 import gsheet
 
 FLAGS = flags.FLAGS
+
+
 flags.DEFINE_integer('page_num', 0, 'Number of forum pages to retrieve.')
+
+# filter setting
 flags.DEFINE_integer('max_age', 0, 'Max age of the posts to keep.')
-flags.DEFINE_string('gsheet_id', None, 'Target Google sheet id.')
+flags.DEFINE_string('company', None, '')
+flags.DEFINE_string('work_type', None, '')
+flags.DEFINE_string('experience', None, '')
+
+# output setting
 flags.DEFINE_bool('display_only', False,
                   'Display all command line arguments only.')
+flags.DEFINE_bool('use_shortened_url', False,
+                  '')
+flags.DEFINE_string('csv_filename', None, 'Target csv file name.')
+flags.DEFINE_string('gsheet_id', None, 'Target Google sheet id.')
 
 def filter_fn(post):
     pass
 
 def main(argv):
     if FLAGS.display_only:
-        print(FLAGS.sheet_id)
+        print('page_num: %d' %(FLAGS.page_num))
+        print('max_age: %d' %(FLAGS.max_age))
+        print('gsheet_id: %s' %(FLAGS.gsheet_id))
+        return
 
     user_agent = ('Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 '
                   '(KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36')
@@ -42,6 +58,11 @@ def main(argv):
         r = requests.get(post.url, headers = headers)
         thread_content = r.text
         bbs_parser.populate_from_thread_page(post, thread_content)
+
+    if FLAGS.use_shortened_url:
+        for post in posts:
+            shortener = Shortener('Tinyurl')
+            post.url = shortener.short(post.url)
 
     # 4. Ouput posts to Google Sheet or terminal.
     if FLAGS.gsheet_id:
