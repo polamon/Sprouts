@@ -41,12 +41,16 @@ flags.DEFINE_bool('use_shortened_url', False,
 flags.DEFINE_bool('print_all_posts', False,
                   'If true, print all posts when running (for debug use).')
 
+
 def sanity_check():
+    if FLAGS.print_all_posts:
+        return True
     if not FLAGS.gsheet_id and not FLAGS.csv_file:
         print('No ouput destination specified. '
               'Please provide --gsheet_id or --csv_file.')
         return False
     return True
+
 
 def filter_fn(post):
     # filter by company
@@ -55,28 +59,29 @@ def filter_fn(post):
             if not FLAGS.keep_missing_tag:
                 return False
         elif post.company != FLAGS.company:
-                return False
+            return False
     # filter by work type
     if FLAGS.work_type:
         if not post.work_type:
             if not FLAGS.keep_missing_tag:
                 return False
         elif post.work_type != FLAGS.work_type:
-                return False
+            return False
     # filter by experience
     if FLAGS.experience:
         if not post.experience:
             if not FLAGS.keep_missing_tag:
                 return False
         elif post.experience != FLAGS.experience:
-                return False
+            return False
     return True
+
 
 def main(argv):
     if FLAGS.display_only:
-        print('page_number: %d' %(FLAGS.page_number))
-        print('max_age: %d' %(FLAGS.max_age))
-        print('gsheet_id: %s' %(FLAGS.gsheet_id))
+        print('page_number: %d' % (FLAGS.page_number))
+        print('max_age: %d' % (FLAGS.max_age))
+        print('gsheet_id: %s' % (FLAGS.gsheet_id))
         return
 
     if not sanity_check():
@@ -89,25 +94,21 @@ def main(argv):
     # Gather posts from latest forum pages.
     posts = []
     for i in range(FLAGS.page_number):
-        url = "http://www.1point3acres.com/bbs/forum-145-%s.html" %(i + 1)
-        r = requests.get(url, headers = headers)
-        forum_content = r.text
-        posts.extend(bbs_parser.parse_forum_page(forum_content))
+        url = "http://www.1point3acres.com/bbs/forum-145-%s.html" % (i + 1)
+        r = requests.get(url, headers=headers)
+        posts.extend(bbs_parser.parse_forum_page(r.text))
 
     # Filter posts by age; sort posts by time.
-    posts = list(filter(lambda post: post.age <= FLAGS.max_age, posts))
-    posts = sorted(posts, key = lambda post: post.tid)
+    posts = list(filter(lambda post: post['age'] <= FLAGS.max_age, posts))
+    posts = sorted(posts, key=lambda post: post['tid'])
 
     # Populate tags from corresponding thread page to post.
-    for post in tqdm(posts, desc = 'Retrieving posts...'):
-        r = requests.get(post.url, headers = headers)
+    for post in tqdm(posts, desc='Retrieving posts...'):
+        r = requests.get(post['url'], headers=headers)
         thread_content = r.text
         bbs_parser.populate_from_thread_page(post, thread_content)
         if FLAGS.print_all_posts:
             print(post, '\n')
-
-        # (Don't) Be Evil
-        time.sleep(0.5)
 
     # Further filter posts.
     posts = list(filter(filter_fn, posts))
@@ -118,19 +119,20 @@ def main(argv):
             post.url = shortener.short(post.url)
 
     # Ouput posts to Google Sheet or local csv file.
-    schema = Post.schema()
-    values = [post.tolist() for post in posts]
+    schema = Post.display_names
+    values = [post.to_list() for post in posts]
 
     if FLAGS.gsheet_id:
         gsheet.write_to_gsheet(FLAGS.gsheet_id, schema, values)
-        print('Successfully written to Google Sheet %s' %(FLAGS.gsheet_id))
+        print('Successfully written to Google Sheet %s' % (FLAGS.gsheet_id))
 
     if FLAGS.csv_file:
         with open(FLAGS.csv_file, 'w') as f:
             f_csv = csv.writer(f)
             f_csv.writerow(schema)
             f_csv.writerows(values)
-            print('Successfully written to file %s' %(FLAGS.csv_file))
+            print('Successfully written to file %s' % (FLAGS.csv_file))
+
 
 if __name__ == '__main__':
-  app.run(main)
+    app.run(main)

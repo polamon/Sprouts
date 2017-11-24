@@ -1,28 +1,38 @@
 # -*- coding: utf-8 -*-
 
-class Post:
+
+class Post(dict):
     """
     Holder class for post summary.
     """
 
+    # attributes in post summary
+    attributes = ['tid', 'title', 'age', 'company', 'work_type',
+                  'experience', 'url']
+
+    # display name for attributes, used when saving to file
+    display_names = ['tid', 'Title', 'Age', 'Company', 'Work Type',
+                     'Experience', 'url']
+
     def __init__(self):
-        self.tid = None
-        self.title = None
-        self.url = None
-        self.age = None
-        self.company = None
-        self.work_type = None
-        self.experience = None
+        for attr in Post.attributes:
+            self[attr] = None
+
+    def __getitem__(self, k):
+        if k not in Post.attributes:
+            raise KeyError('')
+        return super().__getitem__(k)
+
+    def __setitem__(self, k, v):
+        if k not in Post.attributes:
+            raise KeyError('')
+        super().__setitem__(k, v)
 
     def __str__(self):
-        return "\n".join(["%s : %s" % (str(k), str(v)) for (k, v) in
-                            self.__dict__.items()])
+        l = []
+        for (attr, name) in zip(Post.attributes, Post.display_names):
+            l.append('%s = %s' % (name, self[attr]))
+        return '\n'.join(l)
 
-    @staticmethod
-    def schema():
-        return ['tid', 'Title', 'Age', 'Company', 'Work Type',
-                'Experience', 'Url']
-
-    def tolist(self):
-        return [self.tid, self.title, self.age, self.company, self.work_type,
-                self.experience, self.url]
+    def to_list(self):
+        return [self[attr] for attr in Post.attributes]

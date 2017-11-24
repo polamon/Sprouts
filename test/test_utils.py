@@ -2,8 +2,7 @@
 
 import unittest
 from freezegun import freeze_time
-
-from sprouts.bbs_parser import *
+from sprouts.utils import *
 
 class TestGetAgeFromTime(unittest.TestCase):
     def test_today(self):

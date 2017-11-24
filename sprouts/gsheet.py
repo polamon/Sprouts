@@ -54,6 +54,7 @@ def write_to_gsheet(gsheet_id, schema, values):
         valueInputOption = 'USER_ENTERED',
         body = body).execute()
 
+    # 2. write other rows(value)
     rangeName = 'A2:' + chr(ord('A') + len(schema) - 1)
     body = {'values': values}
     service.spreadsheets().values().update(
