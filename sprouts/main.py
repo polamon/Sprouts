@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
 from absl import app, flags
+import requests
+import multiprocessing
+from tqdm import *
 import csv
 from pyshorteners import Shortener
-import requests
-import time
-from tqdm import *
 
 from post import Post
 import bbs_parser
 import gsheet
 
+"""
+command line flags
+"""
 FLAGS = flags.FLAGS
 
 # post-gather settings
@@ -34,15 +37,23 @@ flags.DEFINE_string('gsheet_id', None, 'Target Google Sheet id.')
 flags.DEFINE_string('csv_file', None, 'Target csv file name.')
 
 # misc settings
-flags.DEFINE_bool('display_only', False,
-                  'If true, only display all command line arguments.')
 flags.DEFINE_bool('use_shortened_url', False,
                   'If true, use Tinyurl to shorten url in output.')
 flags.DEFINE_bool('print_all_posts', False,
                   'If true, print all posts when running (for debug use).')
 
+"""
+request headers
+"""
+user_agent = ('Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 '
+              '(KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36')
+headers = {'User-Agent': user_agent}
+
 
 def sanity_check():
+    """
+    guarantees there will be some output
+    """
     if FLAGS.print_all_posts:
         return True
     if not FLAGS.gsheet_id and not FLAGS.csv_file:
@@ -52,44 +63,35 @@ def sanity_check():
     return True
 
 
+def build_filter(attribute, target):
+    def f(post):
+        if not post[attribute]:
+            return FLAGS.keep_missing_tag
+        else:
+            return post[attribute] == target
+    return f
+
+
 def filter_fn(post):
-    # filter by company
+    attribute_filters = []
     if FLAGS.company:
-        if not post.company:
-            if not FLAGS.keep_missing_tag:
-                return False
-        elif post.company != FLAGS.company:
-            return False
-    # filter by work type
+        attribute_filters.append(build_filter('company', FLAGS.company))
     if FLAGS.work_type:
-        if not post.work_type:
-            if not FLAGS.keep_missing_tag:
-                return False
-        elif post.work_type != FLAGS.work_type:
-            return False
-    # filter by experience
+        attribute_filters.append(build_filter('work_type', FLAGS.work_type))
     if FLAGS.experience:
-        if not post.experience:
-            if not FLAGS.keep_missing_tag:
-                return False
-        elif post.experience != FLAGS.experience:
-            return False
-    return True
+        attribute_filters.append(build_filter('experience', FLAGS.experience))
+    return all([f(post) for f in attribute_filters])
+
+
+def handle_post(post):
+    r = requests.get(post['url'], headers=headers)
+    bbs_parser.populate_from_thread_page(post, r.text)
+    return post
 
 
 def main(argv):
-    if FLAGS.display_only:
-        print('page_number: %d' % (FLAGS.page_number))
-        print('max_age: %d' % (FLAGS.max_age))
-        print('gsheet_id: %s' % (FLAGS.gsheet_id))
-        return
-
     if not sanity_check():
         return
-
-    user_agent = ('Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 '
-                  '(KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36')
-    headers = {'User-Agent': user_agent}
 
     # Gather posts from latest forum pages.
     posts = []
@@ -98,20 +100,22 @@ def main(argv):
         r = requests.get(url, headers=headers)
         posts.extend(bbs_parser.parse_forum_page(r.text))
 
-    # Filter posts by age; sort posts by time.
+    # Filter posts by age.
     posts = list(filter(lambda post: post['age'] <= FLAGS.max_age, posts))
-    posts = sorted(posts, key=lambda post: post['tid'])
 
     # Populate tags from corresponding thread page to post.
-    for post in tqdm(posts, desc='Retrieving posts...'):
-        r = requests.get(post['url'], headers=headers)
-        thread_content = r.text
-        bbs_parser.populate_from_thread_page(post, thread_content)
-        if FLAGS.print_all_posts:
+    pool = multiprocessing.Pool(processes=4)
+    posts = [post for post in tqdm(pool.imap_unordered(handle_post, posts),
+                                   total=len(posts),
+                                   desc='Retrieving posts...')]
+
+    if FLAGS.print_all_posts:
+        for post in posts:
             print(post, '\n')
 
-    # Further filter posts.
+    # Further filter posts. Sort posts by tid.
     posts = list(filter(filter_fn, posts))
+    posts = sorted(posts, key=lambda post: post['tid'])
 
     if FLAGS.use_shortened_url:
         for post in posts:

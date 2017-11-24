@@ -14,8 +14,9 @@ company_list = ['Airbnb', 'Amazon', 'Apple', 'Bloomberg', 'Cisco', 'Dropbox',
 
 work_type_list = [('全职', 'fulltime'), ('实习', 'intern')]
 
-experience_list = [('fresh grad应届毕业生', 'new grad'),
+experience_list = [('fresh grad', 'new grad'),
                    ('在职跳槽', 'experienced')]
+
 
 def parse_forum_page(forum_content):
     """
@@ -47,6 +48,7 @@ def parse_forum_page(forum_content):
         posts.append(post)
     return posts
 
+
 def populate_from_thread_page(post, thread_content):
     """
     Parse thread page to populate fields in Post object.
@@ -61,14 +63,14 @@ def populate_from_thread_page(post, thread_content):
             tags.append(str(tag_elmt))
         else:
             tags.extend([e.text for e in list(tag_elmt.iter()) if e.text])
+    tags_text = " ".join(tags)
 
-    for tag in tags:
-        for company in company_list:
-            if company in tag:
-                post['company'] = company
-        for work_type in work_type_list:
-            if work_type[0] in tag:
-                post['work_type'] = work_type[1]
-        for experience in experience_list:
-            if experience[0] in tag:
-                post['experience'] = experience[1]
+    for company in company_list:
+        if company in tags_text:
+            post['company'] = company
+    for work_type in work_type_list:
+        if work_type[0] in tags_text:
+            post['work_type'] = work_type[1]
+    for experience in experience_list:
+        if experience[0] in tags_text:
+            post['experience'] = experience[1]

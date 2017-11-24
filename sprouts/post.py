@@ -3,7 +3,7 @@
 
 class Post(dict):
     """
-    Holder class for post summary.
+    holder class for post summary
     """
 
     # attributes in post summary
