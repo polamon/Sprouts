@@ -1,5 +1,7 @@
 *.csv
+*.ttf
 client_secret.json
+visualize/mask.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

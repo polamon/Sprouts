@@ -101,7 +101,8 @@ def populate_tags(post, thread_content):
 
 
 def populate_text(post, thread_content):
-    rubbish = ['attach_nopermission attach_tips', 'locked', 'quote']
+    rubbish = ['attach_nopermission attach_tips',
+               'locked', 'quote', 'guestviewthumb_cur']
 
     selector = etree.HTML(thread_content)
     text_segments = []

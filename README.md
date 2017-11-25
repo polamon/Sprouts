@@ -35,3 +35,7 @@ python3 sprouts --page_number 5 --max_age 7 \
 ```
 python3 sprouts --help
 ```
+
+## Other
+用论坛前5页，发帖时间在一周内的面经生成的词云:  
+![word_cloud](images/word_cloud.png)
