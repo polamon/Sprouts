@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 from lxml import etree
 from post import Post
-from utils import get_age_from_time
 
 """
 Raw tags in thread pages.
@@ -17,6 +17,28 @@ work_type_list = [('全职', 'fulltime'), ('实习', 'intern')]
 experience_list = [('fresh grad', 'new grad'),
                    ('在职跳槽', 'experienced')]
 
+def get_age_from_time(time):
+    """
+    Get age of the post from time description.
+    """
+    try:
+        if time.endswith(('秒前', '小时前', '分钟前')):
+            return 0
+        elif time.startswith('昨天'):
+            return 1
+        elif time.startswith('前天'):
+            return 2
+        elif time.endswith('天前'):
+            return eval(time[:-2].strip())
+        else:
+            l = [int(x) for x in time.split('-')]
+            if len(l) != 3:
+                raise ValueError('invalid time expression: %s' %(time))
+            post_day = datetime(*l)
+            return (datetime.today() - post_day).days
+    except:
+        print('invalid time expression: %s' %(time))
+        raise
 
 def parse_forum_page(forum_content):
     """
@@ -49,7 +71,7 @@ def parse_forum_page(forum_content):
     return posts
 
 
-def populate_from_thread_page(post, thread_content):
+def populate_tags(post, thread_content):
     """
     Parse thread page to populate fields in Post object.
     A thread page is like: http://www.1point3acres.com/bbs/forum.php?mod=viewthread&tid=301284
@@ -74,3 +96,28 @@ def populate_from_thread_page(post, thread_content):
     for experience in experience_list:
         if experience[0] in tags_text:
             post['experience'] = experience[1]
+
+def populate_text(post, thread_content):
+    rubbish = ['attach_nopermission attach_tips', 'locked', 'quote']
+    
+    selector = etree.HTML(thread_content)
+    text_segments = []
+    for elmt in selector.xpath('//*[contains(@id, "message")]/node()'):
+        if isinstance(elmt, etree._ElementUnicodeResult):
+            text_segments.append(elmt.strip())
+        else:
+            attrib = elmt.attrib
+            if 'class' in attrib:
+                if attrib['class'] in rubbish:
+                    continue
+            for sub_elmt in list(elmt.iter()):
+                if not sub_elmt.text:
+                    continue
+                if sub_elmt.tag == 'font':
+                    continue
+                attrib = sub_elmt.attrib
+                if 'class' in attrib and attrib['class'] in rubbish:
+                    continue
+                text_segments.append(sub_elmt.text.strip())
+
+    post['text'] = '\n'.join(filter(lambda s: len(s) > 0, text_segments))

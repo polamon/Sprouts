@@ -3,10 +3,11 @@
 import unittest
 from sprouts.post import *
 
+
 class TestPost(unittest.TestCase):
     def test_display_names(self):
         expected_display_names = ['tid', 'Title', 'Age', 'Company',
-                                  'Work Type', 'Experience', 'url']
+                                  'Work Type', 'Experience', 'Text', 'url']
         self.assertEqual(Post.display_names, expected_display_names)
 
     def test_set_and_get(self):
@@ -30,6 +31,7 @@ class TestPost(unittest.TestCase):
             "Company = None\n"
             "Work Type = None\n"
             "Experience = None\n"
+            "Text = None\n"
             "url = None")
         self.assertEqual(str(p), expected_string)
 
@@ -39,5 +41,6 @@ class TestPost(unittest.TestCase):
         p['title'] = 'Hello'
         p['experience'] = 'Experienced'
 
-        expected_list = [123, 'Hello', None, None, None, 'Experienced', None]
+        expected_list = [123, 'Hello', None, None, None, 'Experienced',
+                         None, None]
         self.assertEqual(p.to_list(), expected_list)

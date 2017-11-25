@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import sys
+sys.path.append('./sprouts')
+
 import unittest
 from freezegun import freeze_time
-from sprouts.utils import *
+from sprouts.bbs_parser import *
 
 class TestGetAgeFromTime(unittest.TestCase):
     def test_today(self):

@@ -8,11 +8,11 @@ class Post(dict):
 
     # attributes in post summary
     attributes = ['tid', 'title', 'age', 'company', 'work_type',
-                  'experience', 'url']
+                  'experience', 'text', 'url']
 
     # display name for attributes, used when saving to file
     display_names = ['tid', 'Title', 'Age', 'Company', 'Work Type',
-                     'Experience', 'url']
+                     'Experience', 'Text', 'url']
 
     def __init__(self):
         for attr in Post.attributes:

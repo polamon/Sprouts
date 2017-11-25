@@ -49,7 +49,6 @@ user_agent = ('Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 '
               '(KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36')
 headers = {'User-Agent': user_agent}
 
-
 def sanity_check():
     """
     guarantees there will be some output
@@ -85,7 +84,8 @@ def filter_fn(post):
 
 def handle_post(post):
     r = requests.get(post['url'], headers=headers)
-    bbs_parser.populate_from_thread_page(post, r.text)
+    bbs_parser.populate_tags(post, r.text)
+    bbs_parser.populate_text(post, r.text)
     return post
 
 
