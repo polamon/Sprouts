@@ -17,6 +17,7 @@ work_type_list = [('全职', 'fulltime'), ('实习', 'intern')]
 experience_list = [('fresh grad', 'new grad'),
                    ('在职跳槽', 'experienced')]
 
+
 def get_age_from_time(time):
     """
     Get age of the post from time description.
@@ -33,12 +34,13 @@ def get_age_from_time(time):
         else:
             l = [int(x) for x in time.split('-')]
             if len(l) != 3:
-                raise ValueError('invalid time expression: %s' %(time))
+                raise ValueError('invalid time expression: %s' % (time))
             post_day = datetime(*l)
             return (datetime.today() - post_day).days
     except:
-        print('invalid time expression: %s' %(time))
+        print('invalid time expression: %s' % (time))
         raise
+
 
 def parse_forum_page(forum_content):
     """
@@ -97,9 +99,10 @@ def populate_tags(post, thread_content):
         if experience[0] in tags_text:
             post['experience'] = experience[1]
 
+
 def populate_text(post, thread_content):
     rubbish = ['attach_nopermission attach_tips', 'locked', 'quote']
-    
+
     selector = etree.HTML(thread_content)
     text_segments = []
     for elmt in selector.xpath('//*[contains(@id, "message")]/node()'):

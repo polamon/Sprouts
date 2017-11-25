@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from sprouts.post import *
+from sprouts.post import Post
 
 
 class TestPost(unittest.TestCase):

@@ -49,6 +49,7 @@ user_agent = ('Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 '
               '(KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36')
 headers = {'User-Agent': user_agent}
 
+
 def sanity_check():
     """
     guarantees there will be some output
@@ -120,7 +121,7 @@ def main(argv):
     if FLAGS.use_shortened_url:
         for post in posts:
             shortener = Shortener('Tinyurl')
-            post.url = shortener.short(post.url)
+            post.url = shortener.short(post['url'])
 
     # Ouput posts to Google Sheet or local csv file.
     schema = Post.display_names

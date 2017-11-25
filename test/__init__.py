@@ -1,2 +1,2 @@
 import sys
-sys.path.append('../sprouts')
+sys.path.append('./sprouts')

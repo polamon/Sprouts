@@ -5,7 +5,7 @@ sys.path.append('./sprouts')
 
 import unittest
 from freezegun import freeze_time
-from sprouts.bbs_parser import *
+from bbs_parser import *
 
 class TestGetAgeFromTime(unittest.TestCase):
     def test_today(self):

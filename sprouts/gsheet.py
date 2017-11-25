@@ -14,6 +14,7 @@ SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'sprouts'
 
+
 def get_credentials():
     """
     Gets user credentials from storage or obtain new credentials.
@@ -33,6 +34,7 @@ def get_credentials():
         credentials = tools.run_flow(flow, store, flags)
     return credentials
 
+
 def write_to_gsheet(gsheet_id, schema, values):
     """
     Write posts to Google Sheets.
@@ -41,24 +43,24 @@ def write_to_gsheet(gsheet_id, schema, values):
     http = credentials.authorize(httplib2.Http())
     discoveryUrl = ('https://sheets.googleapis.com/$discovery/rest?'
                     'version=v4')
-    service = discovery.build('sheets', 'v4', http = http,
-                              discoveryServiceUrl = discoveryUrl,
-                              cache_discovery = False)
+    service = discovery.build('sheets', 'v4', http=http,
+                              discoveryServiceUrl=discoveryUrl,
+                              cache_discovery=False)
 
     # 1. write first row(schema)
     rangeName = 'A1:' + chr(ord('A') + len(schema) - 1)
     body = {'values': [schema]}
     service.spreadsheets().values().update(
-        spreadsheetId = gsheet_id,
-        range = rangeName,
-        valueInputOption = 'USER_ENTERED',
-        body = body).execute()
+        spreadsheetId=gsheet_id,
+        range=rangeName,
+        valueInputOption='USER_ENTERED',
+        body=body).execute()
 
     # 2. write other rows(value)
     rangeName = 'A2:' + chr(ord('A') + len(schema) - 1)
     body = {'values': values}
     service.spreadsheets().values().update(
-        spreadsheetId = gsheet_id,
-        range = rangeName,
-        valueInputOption = 'USER_ENTERED',
-        body = body).execute()
+        spreadsheetId=gsheet_id,
+        range=rangeName,
+        valueInputOption='USER_ENTERED',
+        body=body).execute()
