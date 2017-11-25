@@ -12,22 +12,24 @@ pip3 install -r requirements.txt
 ## Usage
 
 ### Exampel 1
-将论坛前1页，发帖时间在一周内的Intern面经存入指定的Google Sheets：
+将论坛前5页，发帖时间在一周内的Intern面经存入指定的Google Sheets：
 ``` shell
-python3 sprouts --page_number 1 --max_age 7 \
+python3 sprouts --page_number 5 --max_age 7 \
       --work_type intern \
       --gsheet_id [GOOGLE SHEETS ID]
 ```
+![1](images/1.png)
 
 ### Example 2
-将论坛前1页，发帖时间在一周内的Google全职面经存入Google.csv，帖子链接使用TinyURL短网址：
+将论坛前5页，发帖时间在一周内的Google全职面经存入Google.csv，帖子链接使用TinyURL短网址：
 
 ``` shell
-python3 sprouts --page_number 1 --max_age 7 \
+python3 sprouts --page_number 5 --max_age 7 \
     --company Google --work_type fulltime  \
     --csv_file Google.csv \
     --use_shortened_url
 ```
+![2](images/2.png)
 
 关于其他参数：
 ```

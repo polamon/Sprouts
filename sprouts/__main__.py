@@ -19,6 +19,7 @@ FLAGS = flags.FLAGS
 # post-gather settings
 flags.DEFINE_integer('page_number', 0, 'Number of forum pages to retrieve.')
 flags.DEFINE_integer('max_age', 0, 'Max age of the posts to keep.')
+flags.DEFINE_bool('record_text', False, 'Record text in thread page')
 
 # filter settings
 flags.DEFINE_bool('keep_missing_tag', False,
@@ -86,7 +87,10 @@ def filter_fn(post):
 def handle_post(post):
     r = requests.get(post['url'], headers=headers)
     bbs_parser.populate_tags(post, r.text)
-    bbs_parser.populate_text(post, r.text)
+    if FLAGS.record_text:
+        bbs_parser.populate_text(post, r.text)
+    else:
+        post['text'] = 'not recorded'
     return post
 
 
@@ -121,7 +125,7 @@ def main(argv):
     if FLAGS.use_shortened_url:
         for post in posts:
             shortener = Shortener('Tinyurl')
-            post.url = shortener.short(post['url'])
+            post['url'] = shortener.short(post['url'])
 
     # Ouput posts to Google Sheet or local csv file.
     schema = Post.display_names

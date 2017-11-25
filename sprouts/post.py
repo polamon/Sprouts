@@ -34,5 +34,5 @@ class Post(dict):
             l.append('%s = %s' % (name, self[attr]))
         return '\n'.join(l)
 
-    def to_list(self):
+    def to_list(self, schema = None):
         return [self[attr] for attr in Post.attributes]
